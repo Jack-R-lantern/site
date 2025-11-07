@@ -1,0 +1,5 @@
+# for bpf debugging file
+*.o
+*.S
+*.elf
+*.ll
