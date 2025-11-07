@@ -1,11 +1,14 @@
 #pragma once
 
 #include <linux/bpf.h>
+#include <linux/ip.h>
+
+#include "ip.h"
 
 #define DEFAULT_NODE_MAP_MAX_ENTRIES	8192
 
 struct node_key {
-	__be32	saadr;
+	__be32	saddr;
 	__be32	daddr;
 	__u8	protocol;
 	__u8	pad[7];
@@ -16,10 +19,13 @@ struct node_val {
 	__u64	last_seen;
 };
 
-static __always_inline void parse_node_key(struct node_key *key, struct iphdr *ip) {
+static __always_inline void parse_node_key(struct node_key *key, struct __sk_buff *skb) {
+	struct iphdr *ip = 0;
+	parse_iphdr(skb, &ip);
+
+	key->saddr = ip->saddr;
 	key->daddr = ip->daddr;
-	key->saadr = ip->saddr;
-	key->protocol = ip->protocol;	
+	key->protocol = ip->protocol;
 }
 
 static __always_inline struct node_val *get_node_value(struct node_key *key, void* map) {
