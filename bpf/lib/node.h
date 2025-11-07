@@ -19,13 +19,17 @@ struct node_val {
 	__u64	last_seen;
 };
 
-static __always_inline void parse_node_key(struct node_key *key, struct __sk_buff *skb) {
+static __always_inline bool parse_node_key(struct node_key *key, struct __sk_buff *skb) {
 	struct iphdr *ip = 0;
-	parse_iphdr(skb, &ip);
+	if (!parse_iphdr(skb, ETH_HLEN, &ip)) {
+		return false;
+	}
 
 	key->saddr = ip->saddr;
 	key->daddr = ip->daddr;
 	key->protocol = ip->protocol;
+	
+	return true;
 }
 
 static __always_inline struct node_val *get_node_value(struct node_key *key, void* map) {

@@ -15,8 +15,16 @@ static __always_inline bool eth_is_supported_ethertype(__be16 proto) {
 	return proto >= bpf_htons(ETH_P_802_3_MIN);
 }
 
+static __always_inline __u64 ethhdr_len(struct __sk_buff *skb) {
+	if (skb->vlan_present) {
+		return ETH_HLEN + VLAN_HLEN;
+	} else {
+		return ETH_HLEN;
+	}
+}
+
 static __always_inline bool validate_ethertype(struct __sk_buff *skb, __u16* proto) {
-	const __u64 tot_len = ETH_HLEN;
+	const __u64 tot_len = ethhdr_len(skb);
 	void *data_end = (void*)(unsigned long long)skb->data_end;
 	void *data = (void*)(unsigned long long)skb->data;
 	struct ethhdr *eth;

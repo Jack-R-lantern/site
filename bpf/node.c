@@ -44,17 +44,16 @@ int node_ingress(struct __sk_buff *skb) {
 
 	switch (proto) {
 	case bpf_htons(ETH_P_IP):
-		if (!validate_iphdr(skb, ETH_HLEN)) {
+		if (!parse_node_key(&key, skb)) {
 			goto skip;
 		}
-		parse_node_key(&key, skb);
 
 		struct node_val *exist = 0;
 		exist = get_node_value(&key, &node_ingress_map);
 
 		// TODO
 		// - case exist null how to handling
-		// - errno NOMEM or 
+		// - errno NOMEM
 		if (exist) {
 			__sync_fetch_and_add(&exist->bytes, skb->len);
 			exist->last_seen = bpf_ktime_get_ns();
@@ -79,17 +78,16 @@ int node_egress(struct __sk_buff *skb) {
 
 	switch (proto) {
 	case bpf_htons(ETH_P_IP):
-		if (!validate_iphdr(skb, ETH_HLEN)) {
+		if (!parse_node_key(&key, skb)) {
 			goto skip;
 		}
-		parse_node_key(&key, skb);
 
 		struct node_val *exist = 0;
 		exist = get_node_value(&key, &node_egress_map);
 
 		// TODO
 		// - case exist null how to handling
-		// - errno NOMEM or 
+		// - errno NOMEM
 		if (exist) {
 			__sync_fetch_and_add(&exist->bytes, skb->len);
 			exist->last_seen = bpf_ktime_get_ns();

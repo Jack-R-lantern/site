@@ -46,8 +46,17 @@ clean:
 	@echo "  CLEAN"
 	rm -f $(LLS) $(OBJS) $(ASM) $(ELF)
 
-TARGET_O := $(CURDIR)/$(firstword $(OBJS))
+# test: bpf
+# 	@echo " RUN BPF Load Test (Go) for $(TARGET_O)"
+# 	@BPF_ELF=$(TARGET_O) $(GO) test -v ./... -count=1
+
+TARGET_O = $(addprefix $(CURDIR)/, $(wildcard *.o))
 
 test: bpf
-	@echo " RUN BPF Load Test (Go) for $(TARGET_O)"
-	@BPF_ELF=$(TARGET_O) $(GO) test -v ./... -count=1
+	@echo "=== RUN BPF Load Test for all ELF objects ==="
+	@ret=0; \
+	for f in $(TARGET_O); do \
+		echo "\n>>> Testing $$f ..."; \
+		BPF_ELF=$$f $(GO) test -v ./... -count=1 || ret=$$?; \
+	done; \
+	exit $$ret
