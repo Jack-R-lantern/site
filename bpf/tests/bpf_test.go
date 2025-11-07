@@ -49,7 +49,7 @@ func TestBPFELFLoadIntoKernel(t *testing.T) {
 	coll, err := ebpf.NewCollectionWithOptions(spec, ebpf.CollectionOptions{
 		Programs: ebpf.ProgramOptions{
 			LogLevel:     1,
-			LogSizeStart: 256 * 1024,
+			LogSizeStart: 1024 * 1024,
 		},
 	})
 	if isPermissionError(err) {
