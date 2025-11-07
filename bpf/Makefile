@@ -11,10 +11,11 @@ CC		:= clang
 LLC		:= llc
 OBJDUMP	:= llvm-objdump
 READELF	:= llvm-readelf
+GO		:= go
 
 CFLAGS		:= -O2 -g -target bpf -I/usr/include -I/usr/include/bpf -I./lib
 LLCFLAGS	:= -march=bpf -filetype=obj
-OBJDUMPARGS	:= -dr --no-show-raw-insn
+OBJDUMPARGS	:= -dr --no-show-raw-insn --source
 READELFARGS	:= -S
 
 all: bpf
@@ -44,3 +45,9 @@ bpf: $(LLS) $(OBJS) $(ASM) $(ELF)
 clean:
 	@echo "  CLEAN"
 	rm -f $(LLS) $(OBJS) $(ASM) $(ELF)
+
+TARGET_O := $(CURDIR)/$(firstword $(OBJS))
+
+test: bpf
+	@echo " RUN BPF Load Test (Go) for $(TARGET_O)"
+	@BPF_ELF=$(TARGET_O) $(GO) test -v ./... -count=1

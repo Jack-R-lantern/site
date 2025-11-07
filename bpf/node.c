@@ -13,14 +13,14 @@
 struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
 	__type(key, struct node_key);
-	__type(value, struct node_value);
+	__type(value, struct node_val);
 	__uint(max_entries, DEFAULT_NODE_MAP_MAX_ENTRIES);
 } node_ingress_map SEC(".maps");
 
 struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
 	__type(key, struct node_key);
-	__type(value, struct node_value);
+	__type(value, struct node_val);
 	__uint(max_entries, DEFAULT_NODE_MAP_MAX_ENTRIES);
 } node_egress_map SEC(".maps");
 
@@ -37,18 +37,17 @@ int node_ingress(struct __sk_buff *skb) {
 	__be16 proto = 0;
 	struct node_key key = {};
 	struct node_val val = {};
-	struct iphdr *ip = 0;
 
-	if (!validate_ethertype(skb, 0, &proto)) {
+	if (!validate_ethertype(skb, &proto)) {
 		goto skip;
 	}
 
 	switch (proto) {
 	case bpf_htons(ETH_P_IP):
-		if (!validate_iphdr(skb, ETH_HLEN, &ip)) {
+		if (!validate_iphdr(skb, ETH_HLEN)) {
 			goto skip;
 		}
-		parse_node_key(&key, ip);
+		parse_node_key(&key, skb);
 
 		struct node_val *exist = 0;
 		exist = get_node_value(&key, &node_ingress_map);
@@ -73,18 +72,17 @@ int node_egress(struct __sk_buff *skb) {
 	__be16 proto = 0;
 	struct node_key key = {};
 	struct node_val val = {};
-	struct iphdr *ip = 0;
 
-	if (!validate_ethertype(skb, 0, &proto)) {
+	if (!validate_ethertype(skb, &proto)) {
 		goto skip;
 	}
 
 	switch (proto) {
 	case bpf_htons(ETH_P_IP):
-		if (!validate_iphdr(skb, ETH_HLEN, &ip)) {
+		if (!validate_iphdr(skb, ETH_HLEN)) {
 			goto skip;
 		}
-		parse_node_key(&key, ip);
+		parse_node_key(&key, skb);
 
 		struct node_val *exist = 0;
 		exist = get_node_value(&key, &node_egress_map);
