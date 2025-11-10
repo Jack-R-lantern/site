@@ -3,13 +3,14 @@
 #include <linux/bpf.h>
 #include <linux/ip.h>
 
+#include "eth.h"
 #include "ip.h"
 
 #define DEFAULT_NODE_MAP_MAX_ENTRIES	8192
 
 struct node_key {
-	__be32	saddr;
-	__be32	daddr;
+	__u32	saddr;
+	__u32	daddr;
 	__u8	protocol;
 	__u8	pad[7];
 };
@@ -21,12 +22,12 @@ struct node_val {
 
 static __always_inline bool parse_node_key(struct node_key *key, struct __sk_buff *skb) {
 	struct iphdr *ip = 0;
-	if (!parse_iphdr(skb, ETH_HLEN, &ip)) {
+	if (!parse_iphdr(skb, ethhdr_len(skb), &ip)) {
 		return false;
 	}
 
-	key->saddr = ip->saddr;
-	key->daddr = ip->daddr;
+	key->saddr = bpf_ntohl(ip->saddr);
+	key->daddr = bpf_ntohl(ip->daddr);
 	key->protocol = ip->protocol;
 	
 	return true;
