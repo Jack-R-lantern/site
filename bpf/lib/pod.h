@@ -12,10 +12,10 @@
 #define CGROUP_SKB_PASS	1
 
 struct pod_key {
-	__be32	saddr;
-	__be32	daddr;
-	__be16	sport;
-	__be16	dport;
+	__u32	saddr;
+	__u32	daddr;
+	__u16	sport;
+	__u16	dport;
 	__u8	protocol;
 	__u8	pad[3];
 };
@@ -32,8 +32,8 @@ static __always_inline bool parse_pod_key(struct pod_key *key, struct __sk_buff 
 		return false;
 	}
 
-	key->saddr = ip->saddr;
-	key->daddr = ip->daddr;
+	key->saddr = bpf_ntohl(ip->saddr);
+	key->daddr = bpf_ntohl(ip->daddr);
 	key->protocol = ip->protocol;
 
 	struct {
@@ -45,8 +45,8 @@ static __always_inline bool parse_pod_key(struct pod_key *key, struct __sk_buff 
 		return false;
 	}
 
-	key->sport = ports.sport;
-	key->dport = ports.dport;
+	key->sport = bpf_ntohs(ports.sport);
+	key->dport = bpf_ntohs(ports.dport);
 
 	return true;
 }

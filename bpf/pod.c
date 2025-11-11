@@ -40,10 +40,9 @@ int tc_pod_ingress(struct __sk_buff *skb) {
 
 	switch (proto) {
 	case bpf_htons(ETH_P_IP):
-		if (!validate_iphdr(skb, ethhdr_len(skb))) {
+		if (!parse_pod_key(&key, skb, ethhdr_len(skb))) {
 			goto skip;
 		}
-		parse_pod_key(&key, skb, ethhdr_len(skb));
 
 		struct pod_val *exist = 0;
 		exist = get_pod_value(&key, &pod_ingress_map);
@@ -76,10 +75,9 @@ int tc_pod_egress(struct __sk_buff *skb) {
 
 	switch (proto) {
 	case bpf_htons(ETH_P_IP):
-		if (!validate_iphdr(skb, ethhdr_len(skb))) {
+		if (!parse_pod_key(&key, skb, ethhdr_len(skb))) {
 			goto skip;
 		}
-		parse_pod_key(&key, skb, ethhdr_len(skb));
 
 		struct pod_val *exist = 0;
 		exist = get_pod_value(&key, &pod_egress_map);
