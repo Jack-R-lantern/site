@@ -1,0 +1,20 @@
+components:
+  schemas:
+    AttachRequest:
+      type: object
+      required:
+        - progType
+        - ingress
+        - egress
+      additionalProperties: false
+      properties:
+        progType:
+          type: string
+          enum: [node, pod]
+          description: "bpf attach point"
+        ingress:
+          type: boolean
+          description: "ingress direction attach whether"
+        egress:
+          type: boolean
+          description: "egress direction attach whether"

@@ -1,0 +1,31 @@
+openapi: 3.0.3
+info:
+  title: site bpf handle api
+  version: v1
+paths:
+  /api/v1/program/attachment:
+    put:
+      operationId: AttachProgram
+      summary: Attach BPF program in an idempotent way
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./site-model.yaml#/components/schemas/AttachRequest"
+      responses:
+        "200":
+          description: Attached (or already attached)
+    delete:
+      operationId: DetachProgram
+      summary: Detach BPF program in an idempotent way
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./site-model.yaml#/components/schemas/AttachRequest"
+      responses:
+        "204":
+          description: Detached (or already detached)
+      
