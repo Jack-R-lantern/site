@@ -12,11 +12,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./site-model.yaml#/components/schemas/AttachRequest"
+              $ref: "./oas-components.yaml#/components/schemas/AttachRequest"
       responses:
-        "200":
+        "204":
           description: Attached (or already attached)
-    delete:
+  /api/v1/program/detachment:
+    put:
       operationId: DetachProgram
       summary: Detach BPF program in an idempotent way
       requestBody:
@@ -24,7 +25,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./site-model.yaml#/components/schemas/AttachRequest"
+              $ref: "./oas-components.yaml#/components/schemas/DetachRequest"
       responses:
         "204":
           description: Detached (or already detached)

@@ -1,5 +1,5 @@
 package: models
-output: model-gen.go
+output: ../../internal/api/models/model-gen.go
 generate:
   models: true
 output-options:

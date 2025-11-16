@@ -16,11 +16,11 @@ import (
 	externalRef0 "github.com/Jack-R-lantern/site/internal/api/models"
 )
 
-// DetachProgramJSONRequestBody defines body for DetachProgram for application/json ContentType.
-type DetachProgramJSONRequestBody = externalRef0.AttachRequest
-
 // AttachProgramJSONRequestBody defines body for AttachProgram for application/json ContentType.
 type AttachProgramJSONRequestBody = externalRef0.AttachRequest
+
+// DetachProgramJSONRequestBody defines body for DetachProgram for application/json ContentType.
+type DetachProgramJSONRequestBody = externalRef0.DetachRequest
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -95,39 +95,15 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// DetachProgramWithBody request with any body
-	DetachProgramWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	DetachProgram(ctx context.Context, body DetachProgramJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// AttachProgramWithBody request with any body
 	AttachProgramWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	AttachProgram(ctx context.Context, body AttachProgramJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-}
 
-func (c *Client) DetachProgramWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDetachProgramRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
+	// DetachProgramWithBody request with any body
+	DetachProgramWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-func (c *Client) DetachProgram(ctx context.Context, body DetachProgramJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDetachProgramRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
+	DetachProgram(ctx context.Context, body DetachProgramJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) AttachProgramWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -154,44 +130,28 @@ func (c *Client) AttachProgram(ctx context.Context, body AttachProgramJSONReques
 	return c.Client.Do(req)
 }
 
-// NewDetachProgramRequest calls the generic DetachProgram builder with application/json body
-func NewDetachProgramRequest(server string, body DetachProgramJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
+func (c *Client) DetachProgramWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDetachProgramRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
-	bodyReader = bytes.NewReader(buf)
-	return NewDetachProgramRequestWithBody(server, "application/json", bodyReader)
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
-// NewDetachProgramRequestWithBody generates requests for DetachProgram with any type of body
-func NewDetachProgramRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
+func (c *Client) DetachProgram(ctx context.Context, body DetachProgramJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDetachProgramRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
-
-	operationPath := fmt.Sprintf("/api/v1/program/attachment")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
+	return c.Client.Do(req)
 }
 
 // NewAttachProgramRequest calls the generic AttachProgram builder with application/json body
@@ -215,6 +175,46 @@ func NewAttachProgramRequestWithBody(server string, contentType string, body io.
 	}
 
 	operationPath := fmt.Sprintf("/api/v1/program/attachment")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDetachProgramRequest calls the generic DetachProgram builder with application/json body
+func NewDetachProgramRequest(server string, body DetachProgramJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDetachProgramRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewDetachProgramRequestWithBody generates requests for DetachProgram with any type of body
+func NewDetachProgramRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/program/detachment")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -277,36 +277,15 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// DetachProgramWithBodyWithResponse request with any body
-	DetachProgramWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DetachProgramResponse, error)
-
-	DetachProgramWithResponse(ctx context.Context, body DetachProgramJSONRequestBody, reqEditors ...RequestEditorFn) (*DetachProgramResponse, error)
-
 	// AttachProgramWithBodyWithResponse request with any body
 	AttachProgramWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AttachProgramResponse, error)
 
 	AttachProgramWithResponse(ctx context.Context, body AttachProgramJSONRequestBody, reqEditors ...RequestEditorFn) (*AttachProgramResponse, error)
-}
 
-type DetachProgramResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
+	// DetachProgramWithBodyWithResponse request with any body
+	DetachProgramWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DetachProgramResponse, error)
 
-// Status returns HTTPResponse.Status
-func (r DetachProgramResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DetachProgramResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
+	DetachProgramWithResponse(ctx context.Context, body DetachProgramJSONRequestBody, reqEditors ...RequestEditorFn) (*DetachProgramResponse, error)
 }
 
 type AttachProgramResponse struct {
@@ -330,21 +309,25 @@ func (r AttachProgramResponse) StatusCode() int {
 	return 0
 }
 
-// DetachProgramWithBodyWithResponse request with arbitrary body returning *DetachProgramResponse
-func (c *ClientWithResponses) DetachProgramWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DetachProgramResponse, error) {
-	rsp, err := c.DetachProgramWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDetachProgramResponse(rsp)
+type DetachProgramResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
 }
 
-func (c *ClientWithResponses) DetachProgramWithResponse(ctx context.Context, body DetachProgramJSONRequestBody, reqEditors ...RequestEditorFn) (*DetachProgramResponse, error) {
-	rsp, err := c.DetachProgram(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
+// Status returns HTTPResponse.Status
+func (r DetachProgramResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
 	}
-	return ParseDetachProgramResponse(rsp)
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DetachProgramResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 // AttachProgramWithBodyWithResponse request with arbitrary body returning *AttachProgramResponse
@@ -364,20 +347,21 @@ func (c *ClientWithResponses) AttachProgramWithResponse(ctx context.Context, bod
 	return ParseAttachProgramResponse(rsp)
 }
 
-// ParseDetachProgramResponse parses an HTTP response from a DetachProgramWithResponse call
-func ParseDetachProgramResponse(rsp *http.Response) (*DetachProgramResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
+// DetachProgramWithBodyWithResponse request with arbitrary body returning *DetachProgramResponse
+func (c *ClientWithResponses) DetachProgramWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DetachProgramResponse, error) {
+	rsp, err := c.DetachProgramWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
+	return ParseDetachProgramResponse(rsp)
+}
 
-	response := &DetachProgramResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
+func (c *ClientWithResponses) DetachProgramWithResponse(ctx context.Context, body DetachProgramJSONRequestBody, reqEditors ...RequestEditorFn) (*DetachProgramResponse, error) {
+	rsp, err := c.DetachProgram(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
 	}
-
-	return response, nil
+	return ParseDetachProgramResponse(rsp)
 }
 
 // ParseAttachProgramResponse parses an HTTP response from a AttachProgramWithResponse call
@@ -389,6 +373,22 @@ func ParseAttachProgramResponse(rsp *http.Response) (*AttachProgramResponse, err
 	}
 
 	response := &AttachProgramResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseDetachProgramResponse parses an HTTP response from a DetachProgramWithResponse call
+func ParseDetachProgramResponse(rsp *http.Response) (*DetachProgramResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DetachProgramResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

@@ -1,9 +1,0 @@
-package: server
-output: server-gen.go
-generate:
-  gin-server: true
-  models: true
-output-options:
-  skip-prune: true
-import-mapping:
-  ./site-model.yaml: github.com/Jack-R-lantern/site/internal/api/models

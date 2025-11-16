@@ -1,0 +1,9 @@
+package: client
+output: ../../pkg/api/client/client-gen.go
+generate:
+  client: true
+  models: true
+output-options:
+  skip-prune: true
+import-mapping:
+  ./oas-components.yaml: github.com/Jack-R-lantern/site/internal/api/models
