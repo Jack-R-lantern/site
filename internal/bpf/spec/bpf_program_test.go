@@ -1,11 +1,12 @@
-package bpf_test
+package spec_test
 
 import (
 	"testing"
 
-	"github.com/Jack-R-lantern/site/internal/bpf"
 	"github.com/cilium/ebpf"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/Jack-R-lantern/site/internal/bpf/spec"
 )
 
 func TestSetBPFProgramIfindex(t *testing.T) {
@@ -16,7 +17,7 @@ func TestSetBPFProgramIfindex(t *testing.T) {
 	var newIfindex uint32 = 2
 
 	// Act
-	bpf.SetBPFProgramIfindex(programSpec, newIfindex)
+	spec.SetBPFProgramIfindex(programSpec, newIfindex)
 
 	// Assert
 	assert.Equal(t, programSpec.Ifindex, newIfindex)
