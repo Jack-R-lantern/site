@@ -1,0 +1,9 @@
+package: server
+output: ../../internal/api/server/server-gen.go
+generate:
+  gin-server: true
+  models: true
+output-options:
+  skip-prune: true
+import-mapping:
+  ./oas-components.yaml: github.com/Jack-R-lantern/site/internal/api/models

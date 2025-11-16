@@ -5,8 +5,14 @@ package models
 
 // Defines values for AttachRequestProgType.
 const (
-	Node AttachRequestProgType = "node"
-	Pod  AttachRequestProgType = "pod"
+	AttachRequestProgTypeNode AttachRequestProgType = "node"
+	AttachRequestProgTypePod  AttachRequestProgType = "pod"
+)
+
+// Defines values for DetachRequestProgType.
+const (
+	DetachRequestProgTypeNode DetachRequestProgType = "node"
+	DetachRequestProgTypePod  DetachRequestProgType = "pod"
 )
 
 // AttachRequest defines model for AttachRequest.
@@ -23,3 +29,18 @@ type AttachRequest struct {
 
 // AttachRequestProgType bpf attach point
 type AttachRequestProgType string
+
+// DetachRequest defines model for DetachRequest.
+type DetachRequest struct {
+	// Egress egress direction detach whether
+	Egress bool `json:"egress"`
+
+	// Ingress ingress direction detach whether
+	Ingress bool `json:"ingress"`
+
+	// ProgType bpf detach point
+	ProgType DetachRequestProgType `json:"progType"`
+}
+
+// DetachRequestProgType bpf detach point
+type DetachRequestProgType string

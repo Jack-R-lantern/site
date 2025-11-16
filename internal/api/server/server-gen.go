@@ -8,20 +8,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// DetachProgramJSONRequestBody defines body for DetachProgram for application/json ContentType.
-type DetachProgramJSONRequestBody = externalRef0.AttachRequest
-
 // AttachProgramJSONRequestBody defines body for AttachProgram for application/json ContentType.
 type AttachProgramJSONRequestBody = externalRef0.AttachRequest
 
+// DetachProgramJSONRequestBody defines body for DetachProgram for application/json ContentType.
+type DetachProgramJSONRequestBody = externalRef0.DetachRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Detach BPF program in an idempotent way
-	// (DELETE /api/v1/program/attachment)
-	DetachProgram(c *gin.Context)
 	// Attach BPF program in an idempotent way
 	// (PUT /api/v1/program/attachment)
 	AttachProgram(c *gin.Context)
+	// Detach BPF program in an idempotent way
+	// (PUT /api/v1/program/detachment)
+	DetachProgram(c *gin.Context)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -32,19 +32,6 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(c *gin.Context)
-
-// DetachProgram operation middleware
-func (siw *ServerInterfaceWrapper) DetachProgram(c *gin.Context) {
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-		if c.IsAborted() {
-			return
-		}
-	}
-
-	siw.Handler.DetachProgram(c)
-}
 
 // AttachProgram operation middleware
 func (siw *ServerInterfaceWrapper) AttachProgram(c *gin.Context) {
@@ -57,6 +44,19 @@ func (siw *ServerInterfaceWrapper) AttachProgram(c *gin.Context) {
 	}
 
 	siw.Handler.AttachProgram(c)
+}
+
+// DetachProgram operation middleware
+func (siw *ServerInterfaceWrapper) DetachProgram(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DetachProgram(c)
 }
 
 // GinServerOptions provides options for the Gin server.
@@ -86,6 +86,6 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 		ErrorHandler:       errorHandler,
 	}
 
-	router.DELETE(options.BaseURL+"/api/v1/program/attachment", wrapper.DetachProgram)
 	router.PUT(options.BaseURL+"/api/v1/program/attachment", wrapper.AttachProgram)
+	router.PUT(options.BaseURL+"/api/v1/program/detachment", wrapper.DetachProgram)
 }
