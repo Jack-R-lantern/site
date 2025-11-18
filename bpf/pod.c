@@ -115,7 +115,9 @@ int cgroup_pod_ingress(struct __sk_buff *skb) {
 
 	switch (skb->protocol) {
 	case bpf_htons(ETH_P_IP):
-		parse_pod_key(&key, skb, 0);
+		if (!parse_pod_key(&key, skb, 0)) {
+			goto skip;
+		}
 
 		struct pod_val *exist = 0;
 		exist = get_pod_value(&key, &pod_ingress_map);
@@ -127,7 +129,6 @@ int cgroup_pod_ingress(struct __sk_buff *skb) {
 			__sync_fetch_and_add(&exist->bytes, skb->len);
 			exist->last_seen = bpf_ktime_get_ns();
 		}
-
 		break;
 	default:
 		goto skip;
@@ -148,7 +149,9 @@ int cgroup_pod_egress(struct __sk_buff *skb) {
 
 	switch (skb->protocol) {
 	case bpf_htons(ETH_P_IP):
-		parse_pod_key(&key, skb, 0);
+		if (!parse_pod_key(&key, skb, 0)) {
+			goto skip;
+		}
 
 		struct pod_val *exist = 0;
 		exist = get_pod_value(&key, &pod_egress_map);
